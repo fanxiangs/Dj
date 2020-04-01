@@ -1,0 +1,32 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>持续时间</th>
+            <th>结果</th>
+            <th>触发人</th>
+            <th>生成版本路径</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in record_list %}
+        <tr>
+            <td>{{ record.start_time|date:"Y-m-d H:i:s" }}</td>
+            {% if record.end_time != None  %}
+                <td>{{ record.end_time|date:"Y-m-d H:i:s" }}</td>
+            {% else %}
+                <td>----</td>
+            {% endif %}
+            {% if record.duration != ''  %}
+                <td>{{ record.duration }}</td>
+            {% else %}
+                <td>0</td>
+            {% endif %}
+            <td>{{ record.get_result_display }}</td>
+            <td>{{ record.trigger.username }}</td>
+            <td>{{ record.url }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

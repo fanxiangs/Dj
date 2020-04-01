@@ -1,0 +1,67 @@
+<!-- 载入静态文件 -->
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<!-- 网站主语言 -->
+<html lang="zh-cn">
+
+<head>
+    <!-- 网站采用的字符编码 -->
+    <meta charset="utf-8">
+    <!-- 预留网站标题的位置 -->
+    <title>{% block title %}{% endblock %}</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/ci_autotest.css" rel="stylesheet">
+    <script src="/static/js/jquery-3.4.1.min.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/all.min.js"></script>
+</head>
+
+<script>
+    $(document).ready(function () {
+        var headHeight =  $("#head").outerHeight();
+        var footHeight = $("#foot").outerHeight();
+        $("#main").css('margin-top',headHeight+'px');
+        $("#main").css('margin-bottom',footHeight+'px');
+        var heigth = $(document).outerHeight() - headHeight - footHeight;
+        $("#main").height(heigth);
+
+        var url = location.href;
+        $("#about_ci").removeClass('active');
+        $("#ver_maker").removeClass('active');
+        $("#daily_info").removeClass('active');
+        $("#static_check").removeClass('active');
+        $("#ci_faq").removeClass('active');
+        $("#contact_us").removeClass('active');
+
+        if (url.indexOf($("#about_ci").attr('href')) != -1) {
+            $("#about_ci").addClass('active');
+        }
+        if (url.indexOf($("#ver_maker").attr('href')) != -1) {
+            $("#ver_maker").addClass('active');
+        }
+        if (url.indexOf($("#daily_info").attr('href')) != -1) {
+            $("#daily_info").addClass('active');
+        }
+        if (url.indexOf($("#static_check").attr('href')) != -1) {
+            $("#static_check").addClass('active');
+        }
+        if (url.indexOf($("#ci_faq").attr('href')) != -1) {
+            $("#ci_faq").addClass('active');
+        }
+        if (url.indexOf($("#contact_us").attr('href')) != -1) {
+            $("#contact_us").addClass('active');
+        }
+    });
+</script>
+{% block exscript %}{% endblock exscript %}
+
+<body>
+    <!-- 引入导航栏 -->
+    {% include 'header.html' %}
+    <!-- 预留具体页面的位置 -->
+    {% block content %}{% endblock content %}
+    <!-- 引入注脚 -->
+    {% include 'footer.html' %}
+</body>

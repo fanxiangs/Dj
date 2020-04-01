@@ -1,0 +1,26 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}公告一览{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container">
+		<h1 class="text-center">公告一览</h1>
+        <hr class="my-4">
+        <div class="list-group">
+        {% for bulletin in bulletin_list %}
+        <a href="{% url 'bulletin' bulletin.id %}" class="list-group-item list-group-item-action">{{ bulletin.title }}
+            <p class="font-weight-light">{{ bulletin.time|date:"Y-m-d H:i:s"  }}</p>
+        </a>
+        {% endfor %}
+        </div>
+	</div>
+</div>
+{% endblock content %}

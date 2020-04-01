@@ -1,0 +1,104 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}首页{% endblock title %}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="display: flex;flex-direction:column;">
+    <div class="container" style="margin-top: 56px">
+        <div>
+            <br>
+            <h1 class="display-4">公告</h1>
+            <hr><br>
+                {% if smoke_res == "T" %}
+                    <div class="alert alert-success" style="padding: 0;" >
+                        <div class="card-body">
+                            {% for notice in notice_list %}
+                            <h5 class="card-title">今日主干版本冒烟通过</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ notice.time}}</h6>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% elif smoke_res == "F" %}
+                    <div class="alert alert-danger" style="padding: 0;">
+                        <div class="card-body">
+                            <h5 class="card-title" style="color: black">主干版本冒烟通报</h5>
+                            <p></p>
+                            {% for notice in notice_list %}
+                            <h6 class="card-subtitle mb-2 text-muted">{{ notice.date }}{{ notice.time}}</h6>
+                            <p class="card-text" style="white-space: pre-line">{{ notice.describe | safe}}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            <div class="card-deck mb-3">
+                {% for bulletin in bulletin_list %}
+                <div class="card mb-4 shadow-sm border-success" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ bulletin.title }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ bulletin.time|date:"Y-m-d H:i:s"  }}</h6>
+                        <p class="card-text" style="white-space: pre-line">{{ bulletin.body | safe}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <h6><a href="{% url 'bulletins' %}">查看更多</a></h6>
+        </div>
+        <hr>
+
+        <div>
+            <div class="row">
+                <div class="col-4">
+                    <div class="border border-success m-1 p-1 overflow-auto" style="height: 350px">
+                        <h5>常用版本管理信息</h5>
+                        <p class="text-truncate">对外发布版本存放服务器VMP: <a href="http://vmp/" target="_blank">http://vmp/</a></p>
+                        <p class="text-truncate">紧急合入系统: <a href="http://10.160.144.127:8088/eubp/toGrid" target="_blank">http://10.160.144.127:8088/eubp/toGrid</a></p>
+                        <p class="text-truncate">最新的分支权限申请链接: <a href="http://bjcm/sites/EN-Other/Lists/Tasks/AllItems.aspx" target="_blank">http://bjcm/sites/EN-Other/Lists/Tasks/AllItems.aspx</a></p>
+                        <p class="text-truncate">业软SVN库hooks脚本: <a href="http://bjcm/sites/EN-Other/Shared%20Documents/Forms/AllItems.aspx" target="_blank">http://bjcm/sites/EN-Other/Shared%20Documents/Forms/AllItems.aspx</a></p>
+                        <p class="text-truncate">黄区版本服务器IP: 10.160.144.214</p>
+
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="border border-success m-1 p-1 overflow-auto" style="height: 350px">
+                        <h5>能力中心文档路径</h5>
+                        <p class="text-truncate">业软新员工导读: <a href="http://3ms.huawei.com/hi/group/3404661/wiki_5124445.html?for_statistic_from=all_group_wiki" target="_blank">http://3ms.huawei.com/hi/group/3404661/wiki_5124445.html?for_statistic_from=all_group_wiki</a></p>
+                        <p class="text-truncate">运作机制与日常: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1497609" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1497609</a></p>
+                        <p class="text-truncate">集成&验证中心: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1497643" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1497643</a></p>
+                        <p class="text-truncate">工具开发中心: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1502469" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1502469</a></p>
+                        <p class="text-truncate">计算云管理中心: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1502459" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1502459</a></p>
+                        <p class="text-truncate">业软版本管理: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1497619" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1497619</a></p>
+                        <p class="text-truncate">学习与培训: <a href="http://3ms.huawei.com/hi/group/3404661/files.html#category=1497647" target="_blank">http://3ms.huawei.com/hi/group/3404661/files.html#category=1497647</a></p>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="border border-success m-1 p-1 overflow-auto" style="height: 350px">
+                        <h5>常用外部资源信息</h5>
+                        <p class="text-truncate">uCI帮助: <a href="http://uci.huawei.com/" target="_blank">http://uci.huawei.com/</a></p>
+                        <p class="text-truncate">华为持续改进平台: <a href="http://hwci.huawei.com/Index.aspx" target="_blank">http://hwci.huawei.com/Index.aspx</a></p>
+                        <p class="text-truncate">QCC改进平台(old): <a href="http://hwci.huawei.com/QCC/Default.aspx" target="_blank">http://hwci.huawei.com/QCC/Default.aspx</a></p>
+                        <p class="text-truncate">无线CI中心: <a href="http://3ms.huawei.com/hi/group/4405/threads.html?category=1302811#category=1302811" target="_blank">http://3ms.huawei.com/hi/group/4405/threads.html?category=1302811#category=1302811</a></p>
+                        <p class="text-truncate">Rally应用指导: <a href="http://3ms.huawei.com/hi/group/277/thread_3511861.html?mapId=1849201" target="_blank">http://3ms.huawei.com/hi/group/277/thread_3511861.html?mapId=1849201</a></p>
+                        <p class="text-truncate">uCI下载地址: <a href="ftp://uci.huawei.com:50031/uCI" target="_blank">ftp://uci.huawei.com:50031/uCI</a></p>
+                        <p class="text-truncate">uDeck下载地址: <a href="ftp://uci.huawei.com:50031/uDeck" target="_blank">ftp://uci.huawei.com:50031/uDeck</a></p>
+                        <p class="text-truncate">uCI插件下载地址: <a href="ftp://uci.huawei.com:50031/uCI/plugins" target="_blank">ftp://uci.huawei.com:50031/uCI/plugins</a></p>
+                        <p class="text-truncate">Codex插件下载地址: <a href="ftp://autostar.huawei.com" target="_blank">ftp://autostar.huawei.com</a></p>
+                        <p class="text-truncate">Windows工具集: <a href="https://sourceforge.net/projects/gnuwin32/files/" target="_blank">https://sourceforge.net/projects/gnuwin32/files/</a></p>
+                        <p class="text-truncate">Linux软件下载全集: <a href="http://mirrors.ustc.edu.cn/gnu" target="_blank">http://mirrors.ustc.edu.cn/gnu</a></p>
+                        <p class="text-truncate">华为工具: <a href="http://nshelp.huawei.com" target="_blank">http://nshelp.huawei.com</a></p>
+                        <p class="text-truncate">Python插件下载: <a href="https://pypi.python.org/pypi" target="_blank">https://pypi.python.org/pypi</a></p>
+                        <p class="text-truncate">codeclub帮助中心: <a href="http://pages.huawei.com/codeclub/guides/" target="_blank">http://pages.huawei.com/codeclub/guides/</a></p>
+                        <p class="text-truncate">Codeclub&Git使用-CMO整理: <a href="http://3ms.huawei.com/km/groups/3541591/blogs/details/6289647" target="_blank">http://3ms.huawei.com/km/groups/3541591/blogs/details/6289647</a></p>
+                    </div>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock content %}

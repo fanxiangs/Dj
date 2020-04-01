@@ -1,0 +1,23 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}每日版本晴雨表{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container">
+		<h1 class="text-center">每日版本晴雨表</h1>
+		<hr>
+		<div class= "submitbox">
+            <a href="{% url 'add_data' %}"><input class="submit" type="submit" name="submit" value="添加"/></a>
+			<a href="{% url 'search' %}"><input class="submit" type="submit" name="submit" value="查询"/></a>
+        </div>
+	</div>
+</div>
+{% endblock content %}

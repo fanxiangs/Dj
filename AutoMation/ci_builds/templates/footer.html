@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{#{% load hitcount_tags %}#}
+<footer class="py-3 bg-dark fixed-bottom" id="foot">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 offset-md-3 text-white" style="text-align: center">CID冒烟建设小组</div>
+            <div class="col-md-3 text-white" style="text-align: center">Copyright &copy; TD-Tech 2019</div>
+{#            {% if project %}#}
+{#            <div class="col-md-3 text-white small" style="text-align: right">#}
+{#                当前访问量: {% get_hit_count for project %} | 24小时内访问量: {% get_hit_count for project within "days=1" %}</div>#}
+{#            </div>#}
+{#            {% endif %}#}
+            {% if visitor %}
+            <div class="col-md-3 text-white small" style="text-align: right">
+                累计访问量: {{ visitor }} | 今日访问量: {{ visitor_today }}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</footer>

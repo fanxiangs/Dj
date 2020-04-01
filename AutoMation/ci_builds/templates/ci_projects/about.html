@@ -1,0 +1,25 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}CI建设概况{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container" >
+		<h1 class="display-3 text-primary">CI建设概况</h1>
+        <hr>
+        <h3>鼎桥CI的核心价值观</h3>
+        <hr>
+        <h5>核心目标 -- <small>&#9;一切皆配置管理;&#9;一切皆自动化</small></h5>
+        <h5>核心理念 -- <small>&#9;恒者行远，思者常新，博观约取，厚积薄发，以行践言</small></h5>
+        <br>
+        <img src="/static/img/about.png" class="img-fluid" alt="Responsive image">
+	</div>
+</div>
+{% endblock content %}

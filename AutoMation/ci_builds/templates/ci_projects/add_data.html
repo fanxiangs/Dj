@@ -1,0 +1,261 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}TTR5.3 每日版本验证结果{% endblock title %}
+
+<!-- 适用于本html的javascript -->
+{%block exscript%}
+<script type="text/javascript">
+    function checkForm(form){
+        if($("#date").val() == "" || $("#date").val() == null){
+            alert("日期不能为空，请输入......");
+            return false;
+        }else{
+            if($("#version").val() == "" || $("#version").val() == null){
+                alert("版本号不能为空，请输入......");
+                return false;
+            }else{
+                if($("#versionpath").val() == "" || $("#versionpath").val() == null){
+                    alert("版本刷新时间不能为空，请输入......");
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }
+    }
+</script>
+{%endblock exscript%}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+<div class="ci_autotest" id="ci_autotest_add_data" style="margin-top: 56px;border:solid 0 red;padding:30px 0 0;text-align:left;align:center;width:1600px;">
+    <form action="{% url 'add_data' %}" method="post" class="form" onsubmit="return checkForm()">
+        <input type="date" name="date" id="date" style="margin:10px 100px;background: #f6f6f6;color: #202124;">
+        <div id = "submitbox" style="float:right;position:relative;margin:10px 0;right:90px;height:30px;width:60px;">
+            <input class="submit" type="submit" name="submit" value="添加"/>
+        </div>
+        {% csrf_token %}  <!-- 跨域请求 -->
+        <table border="1" align="center" width="1400px" cellspacing="0">
+            <tr>
+                <th colspan="8" height="40px" style="background:lightblue;text-align:center;font-size:20px">TTR5.3 每日版本验证结果</th>
+            </tr>
+            <tr class="version">
+                <td height="30px" width="175px" style="text-indent:10px;">版本号:</td>
+                <td width="175px"><input type="text" name="version" id="version"></td>
+                <td width="175px" style="text-indent:10px;">版本刷新时间：</td>
+                <td colspan="5"><a href="#"  style="text-decoration-line: underline"><input type="text" name="versionpath" id="versionpath"></a></td>
+            </tr>
+            <tr>
+                <th colspan="8" height="25px">自动化运行情况：</th>
+            </tr>
+            <tr class = "headline">
+                <td height="30px">版本制式</td>
+                <td>网元</td>
+                <td>自动化测试线负责人</td>
+                <td>验证结果</td>
+                <td colspan="4">故障原因分析</td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr>
+                <td>
+                    <select class="form_select" name="data1">
+                        <option value="Witen" selected>Witen</option>
+                        <option value="Btrunc">Btrunc</option>
+                        <option value="3GPP">3GPP</option>
+                        <option value="Witen升级">Witen升级</option>
+                        <option value="Btrunc升级">Btrunc升级</option>
+                        <option value="3GPP升级">3GPP升级</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form_select" name="data2">
+                        <option value="MDC" selected>MDC</option>
+                        <option value="UDC">UDC</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data3"/></td>
+                <td>
+                    <select class="form_select" name="data4">
+                        <option class="green" value="▲" selected>▲</option>
+                        <option class="orange" value="●">●</option>
+                        <option class="red" value="■">■</option>
+                    </select>
+                </td>
+                <td><input type="text" name="data5"/></td>
+            </tr>
+            <tr><td colspan="8"><span class="green"  style="font-size: 16px;margin-left: 50px">▲代表版本验证通过</span><span class="orange"  style="font-size: 16px;margin-left: 50px">●代表版本存在非阻塞性问题</span><span class="red"  style="font-size: 16px;margin-left: 50px">■代表版本验证未通过</span></td></tr>
+        </table>
+    </form>
+    <div class="ci_autotest" style="margin-top: 30px;border:solid 0 red;padding:30px 0 0;text-align:left;align:center;width:1600px;">
+        <table border="1" align="center" width="1400px" cellspacing="0">
+            <tbody>
+{#                <tr>#}
+{#                    <th colspan="8" height="40px" style="background:lightblue;text-align:left;font-size:16px">TTR5.3 每日版本验证结果</th>#}
+{#                </tr>#}
+                <tr>
+                    <th colspan="8" height="25px">TTR5.3 每日版本验证结果填写情况：</th>
+                </tr>
+                <tr class = "headline">
+                    <td height="30px" width="90px">日期</td>
+                    <td width="145px">版本号</td>
+                    <td width="400px">版本路径</td>
+                    <td width="80px">版本制式</td>
+                    <td width="50px">网元</td>
+                    <td width="150px">自动化测试线负责人</td>
+                    <td width="80px">验证结果</td>
+                    <td>故障原因分析</td>
+                </tr>
+                {% for data in data_list %}
+                    <tr class="headline">
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.version }}</td>
+                        <td><a href="#" style="text-decoration-line: underline">{{ data.versionpath }}</a></td>
+                        <td>{{ data.data1 }}</td>
+                        <td>{{ data.data2 }}</td>
+                        <td>{{ data.data3 }}</td>
+                        <td>{{ data.data4 }}</td>
+                        <td style="text-align: left">{{ data.data5 }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

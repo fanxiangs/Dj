@@ -1,0 +1,69 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}选择工程{% endblock title %}
+
+{%block exscript%}
+<script>
+	function select_project() {
+		var id = $('#project_selected').val();
+		if (id == 0) {
+		    $("#info").html("请选择工程");
+			$('#error').modal();
+			return;
+		}
+		window.location.href = "/ci_projects/ver_maker/" + id;
+	}
+</script>
+{%endblock exscript%}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="display: flex;flex-direction:column;">
+	<div class="container" style="margin: auto;">
+		<h1 class="display-3 text-primary text-center">欢迎使用自助版本构建系统</h1>
+		<p class="lead text-center">使用CI版本自助构建系统,可自行编译制作版本，执行冒烟用例，获取版本路径和冒烟结果。</p>
+
+		<div><br><br><br></div>
+		<div class="row">
+			<div class="input-group mb-3 col-md-6 offset-md-3">
+				<div class="input-group-prepend">
+					<label class="input-group-text" for="project_selected">请选择工程</label>
+				</div>
+				<select class="custom-select" id="project_selected">
+					<option value="0" selected>选择...</option>
+					{% for project in project_list %}
+					<option value="{{ project.id }}">{{ project.name }}</option>
+					{% endfor %}
+				</select>
+				<div class="input-group-append">
+					<button class="btn btn-outline-secondary" type="button" onclick="select_project()">确认</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="error" tabindex="-1" role="dialog" aria-labelledby="errorTitle" aria-hidden="false">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header bg-danger text-white">
+                <h5 class=" modal-title" id="errorTitle">错误</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p id="info" class="text-break"></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}

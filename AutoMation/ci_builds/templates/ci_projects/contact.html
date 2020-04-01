@@ -1,0 +1,35 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}联系我们{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container" >
+		<h1 class="display-3 text-primary">联系我们</h1>
+        <hr>
+        <h3>CI各模块负责人</h3>
+        <hr><hr>
+        <p>CID负责人: 俞陈坤 ywx197548</p>
+        <hr>
+        <p>GIT&SVN相关: 佟梅娟 twx10656</p>
+        <hr>
+        <p>接口测试相关: 许勤 xwx10629</p>
+        <hr>
+        <p>接口工具相关: 闫华炯 ywx380766</p>
+        <hr>
+        <p>性能工具相关: 杨慜熠 ywx233288</p>
+        <hr>
+        <p>版本编译相关: 吉超 jwx457840</p>
+        <hr>
+        <p>SDK相关: 李得金 lwx791590</p>
+        <hr>
+        <p>冒烟相关: 张猛 zwx778169</p>
+	</div>
+</div>
+{% endblock content %}

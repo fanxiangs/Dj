@@ -1,0 +1,22 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}信息一览{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container">
+		<h1 class="text-center">技术信息一览</h1>
+        <hr class="my-4">
+        {% for info in info_list %}
+            <p>{{ info.title }} : <a href="{{ info.url }}">{{ info.url }}</a></p>
+        {% endfor %}
+	</div>
+</div>
+{% endblock content %}

@@ -1,0 +1,20 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}CI FAQ{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="margin-top: 56px">
+	<div class="container">
+		<h1 class="text-center">CI FAQ</h1>
+		<hr>
+		<h6 class="text-center">功能开发中！</h6>
+	</div>
+</div>
+{% endblock content %}

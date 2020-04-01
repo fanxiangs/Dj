@@ -1,0 +1,759 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}工程详情{% endblock title %}
+
+{%block exscript%}
+<script>
+    function option_select(checked, button) {
+        if (checked) {
+            $(button).attr("class", "btn btn-primary");
+        }
+        else {
+            $(button).attr("class", "btn btn-light");
+        }
+    }
+
+    function build_select(checked) {
+        if (checked) {
+            $("#sync_result").attr("class", "btn btn-primary");
+            $("#build_result").attr("class", "btn btn-primary");
+        }
+        else {
+            $("#sync_result").attr("class", "btn btn-light");
+            $("#build_result").attr("class", "btn btn-light");
+        }
+    }
+
+    function go_to_uci(uci_id, ip, name) {
+        if (uci_id != "" && ip != null && name != null) {
+            var url = "http://" + ip + ":3000/projects/" + name + "/builds/" + uci_id;
+            try {
+                window.open(url);
+            }
+            catch{
+                $("#info").html("url错误: " + url);
+                $('#error').modal();
+            }
+        }
+    }
+
+    function reset_button() {
+        if ($("#sync_id").html() != '')
+            $("#sync_id").html('');
+        if ($("#build_id").html() != '')
+            $("#build_id").html('');
+        if ($("#witen_id").html() != '')
+            $("#witen_id").html('');
+        if ($("#btrunc_id").html() != '')
+            $("#btrunc_id").html('');
+        if ($("#3gpp_id").html() != '')
+            $("#3gpp_id").html('');
+        if (!($("#build").prop("checked"))) {
+            $("#sync_result").attr("class", "btn btn-light");
+            $("#build_result").attr("class", "btn btn-light");
+        }
+        if (!($("#witen").prop("checked")))
+            $("#witen_result").attr("class", "btn btn-light");
+        if (!($("#btrunc").prop("checked")))
+            $("#btrunc_result").attr("class", "btn btn-light");
+        if (!($("#3gpp").prop("checked")))
+            $("#3gpp_result").attr("class", "btn btn-light");
+    }
+
+    function set_checkbox(flag) {
+        $("#build").attr("disabled", flag);
+        $("#witen").attr("disabled", flag);
+        $("#btrunc").attr("disabled", flag);
+        $("#3gpp").attr("disabled", flag);
+    }
+
+    function set_button(flag) {
+        $("#start").attr("disabled", !flag);
+        $("#stop").attr("disabled", flag);
+    }
+
+    function start() {
+        set_button(false);
+        set_checkbox(true);
+        reset_button();
+        run();
+    }
+
+    function stop() {
+        stop_run(sync_id,build_id,witen_id,btrunc_id,tgpp_id);
+    }
+
+    function stop_run(sync_id='', build_id='',witen_id='',btrunc_id='',tgpp_id='') {
+        var para = sync_id+'&'+build_id+'&'+witen_id+'&'+btrunc_id+'&'+tgpp_id;
+        var url = "{% url 'stop' project.id 0%}";
+        url = url.replace('0', para);
+        $.ajax({
+            url: url,
+        });
+    }
+
+    function reset() {
+        set_button(true);
+        set_checkbox(false);
+        $("#build").prop("checked",false);
+        $("#witen").prop("checked",false);
+        $("#btrunc").prop("checked",false);
+        $("#3gpp").prop("checked",false);
+        set_option();
+    }
+
+    function check_start() {
+        if (!($("#build").prop('checked')) && !($("#witen").prop('checked')) && !($("#btrunc").prop('checked')) && !($("#3gpp").prop('checked'))) {
+            $("#info").html("未勾选选项");
+            $('#error').modal();
+            return false;
+        }
+        return true;
+    }
+
+    function run() {
+        if (!check_start()) {
+            reset();
+            return;
+        }
+
+        sync_id = undefined;
+        build_id = undefined;
+        witen_id = undefined;
+        btrunc_id = undefined;
+        tgpp_id = undefined;
+
+        if ($("#build").prop('checked')) {
+            var sync_ip = "{{ project.sync_serv_ip }}";
+            var sync_name = "{{ project.sync_proj_name }}";
+            if (sync_ip == 'None' || sync_ip == '' ||  sync_name == 'None' || sync_name == '') {
+                build();
+            }
+            else {
+                sync();
+            }
+        }
+        else {
+            smoke();
+        }
+    }
+
+    function sync() {
+        //检查状态
+        $.ajax({
+            url: "{% url 'check_sync' project.id %}",
+            success: function (check_ret) {
+                if (check_ret["result"]) {
+                    check_sync_rpm();
+                }
+                else {
+                    $("#sync_result").attr("class", "btn btn-warning");
+                    $("#info").html('工程' + "{{ project.sync_proj_name }}" + "执行异常, " + check_ret["info"]);
+                    $('#error').modal();
+                    reset();
+                }
+            }
+        });
+    }
+
+    //检查RPM资源
+    function check_sync_rpm() {
+        var url = "{% url 'check_sync_rpm' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (check_ret) {
+                if (check_ret['result'] == false) {
+                    $("#info").html("工程"+ "{{ project.sync_proj_name }}" + "执行异常\n原因： " + check_ret["info"]);
+                    $('#error').modal();
+                }
+                start_sync();
+            }
+        });
+    }
+
+    function start_sync() {
+        var url = "{% url 'start_sync' project.id %}";
+
+        $.ajax({
+            url: url,
+            success: function (start_ret) {
+                if (start_ret["result"]) {
+                    $("#sync_status").attr("hidden", false);
+                    $("#sync_result").attr("disabled", false);
+                    sync_id = start_ret["build_id"]
+                    $("#sync_id").html(start_ret["no"]);
+                    wait_sync(sync_id);
+                }
+                else {
+                    $("#sync_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程"+ "{{ project.sync_proj_name }}" + "执行异常\n原因： " + start_ret["info"]);
+                    $('#error').modal();
+                    reset();
+                }
+            }
+        });
+    }
+
+    // 等待同步完成
+    function wait_sync(sync_id) {
+        var url = "{% url 'wait_sync_end' project.id 0 %}";
+        url = url.replace('0', sync_id);
+        $.ajax({
+            url: url,
+            success: function (ret) {
+                $("#sync_status").attr("hidden", true);
+                if (ret["result"]) {
+                    $("#sync_result").attr("class", "btn btn-success");
+                    build();
+                }
+                else {
+                    $("#sync_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程"+ "{{ project.sync_proj_name }}" + "执行异常\n原因： " + ret["info"]);
+                    $('#error').modal();
+                    update(sync_id);
+                }
+            }
+        });
+    }
+
+    function build() {
+        //检查状态
+        $.ajax({
+            url: "{% url 'check_build' project.id %}",
+            success: function (check_ret) {
+                if (check_ret["result"]) {
+                    check_build_rpm();
+                }
+                else {
+                    $("#build_result").attr("class", "btn btn-warning");
+                    $("#info").html("工程" + "{{ project.build_proj_name }}" + "执行异常, 原因: " + check_ret["info"]);
+                    $('#error').modal();
+                    update(sync_id);
+                }
+            }
+        });
+    }
+
+    function start_build() {
+        var url = "{% url 'start_build' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (start_ret) {
+                if (start_ret["result"]) {
+                    $("#build_status").attr("hidden", false);
+                    $("#build_result").attr("disabled", false);
+                    build_id = start_ret["build_id"]
+                    $("#build_id").html(start_ret["no"]);
+                    wait_build(build_id);
+                }
+                else {
+                    $("#build_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.build_proj_name }}" + "执行失败, 原因: " + start_ret["info"]);
+                    $('#error').modal();
+                    update(sync_id);
+                }
+            }
+        });
+    }
+
+    //检查RPM资源
+    function check_build_rpm() {
+        var url = "{% url 'check_build_rpm' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (check_ret) {
+                if (check_ret['result'] == false) {
+                    $("#info").html("工程" + "{{ project.build_proj_name }}" + "执行异常, 原因: " + check_ret["info"]);
+                    $('#error').modal();
+                }
+                start_build();
+            }
+        });
+    }
+
+    // 等待同步完成
+    function wait_build(build_id) {
+        var url = "{% url 'wait_build_end' project.id 0%}";
+        url = url.replace('0', build_id);
+        $.ajax({
+            url: url,
+            success: function (ret) {
+                $("#build_status").attr("hidden", true);
+                if (ret["result"]) {
+                    $("#build_result").attr("class", "btn btn-success");
+                    smoke();
+                }
+                else {
+                    $("#build_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.build_proj_name }}" + "执行失败, 原因: " + ret["info"]);
+                    $('#error').modal();
+                    update(sync_id,build_id);
+                }
+            }
+        });
+    }
+
+    function smoke() {
+        if (!check_proj()) {
+            reset();
+            return;
+        }
+        //检查状态
+        var para = '';
+        if ($("#witen").prop('checked')) {
+            para += '1';
+        }
+        para += '&';
+        if ($("#btrunc").prop('checked')) {
+            para += '1';
+        }
+        para += '&';
+        if ($("#3gpp").prop('checked')) {
+            para += '1';
+        }
+        var url = "{% url 'check_smoke' project.id 0 %}";
+        url = url.replace('0', para);
+        $.ajax({
+            url: url,
+            success: function (check_ret) {
+                var result = true;
+                var info = '';
+                if (check_ret.hasOwnProperty('witen')) {
+                    result = result && check_ret['witen']['result'];
+                    if (check_ret['witen']['result'] == false) {
+                        $("#witen_result").attr("class", "btn btn-warning");
+                        info += "工程" + "{{ project.witen_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['witen']['info'] + "\n";
+                    }
+                }
+                if (check_ret.hasOwnProperty('btrunc')) {
+                    result = result && check_ret['btrunc']['result'];
+                    if (check_ret['btrunc']['result'] == false) {
+                        $("#btrunc_result").attr("class", "btn btn-warning");
+                        info += "工程" + "{{ project.btrunc_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['btrunc']['info'] + "\n";
+                    }
+                }
+                if (check_ret.hasOwnProperty('tgpp')) {
+                    result = result && check_ret['tgpp']['result'];
+                    if (check_ret['tgpp']['result'] == false) {
+                        $("#3gpp_result").attr("class", "btn btn-warning");
+                        info += "工程" + "{{ project.tgpp_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['tgpp']['info']
+                    }
+                }
+
+                if (result) {
+                    check_smoke_rpm(para);
+                }
+                else {
+                    $("#info").html(info);
+                    $('#error').modal();
+                    reset();
+                }
+            }
+        });
+    }
+
+    function check_proj() {
+        if ($("#witen").prop('checked')) {
+            var witen_ip = "{{ project.witen_smoke_serv_ip }}";
+            var witen_name = "{{ project.witen_smoke_proj_name }}";
+            if (witen_ip == 'None' || witen_ip == '' ||  witen_name == 'None' || witen_name == '') {
+                $("#witen_result").attr("class", "btn btn-danger");
+                $("#info").html("WITEN冒烟工程配置异常");
+                $('#error').modal();
+                return false;
+            }
+        }
+        if ($("#btrunc").prop('checked')) {
+            var btrunc_ip = "{{ project.btrunc_smoke_serv_ip }}";
+            var btrunc_name = "{{ project.btrunc_smoke_proj_name }}";
+            if (btrunc_ip == 'None' || btrunc_ip == '' ||  btrunc_name == 'None' || btrunc_name == '') {
+                $("#btrunc_result").attr("class", "btn btn-danger");
+                $("#info").html("BTRUNC冒烟工程配置异常");
+                $('#error').modal();
+                return false;
+            }
+        }
+        if ($("#3gpp").prop('checked')) {
+            var tgpp_ip = "{{ project.tgpp_smoke_serv_ip }}";
+            var tgpp_name = "{{ project.tgpp_smoke_proj_name }}";
+            if (tgpp_ip == 'None' || tgpp_ip == '' ||  tgpp_name == 'None' || tgpp_name == '') {
+                $("#3gpp_result").attr("class", "btn btn-danger");
+                $("#info").html("3GPP冒烟工程配置异常");
+                $('#error').modal();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function check_smoke_rpm(para) {
+        var url = "{% url 'check_smoke_rpm' project.id 0 %}";
+        url = url.replace('0', para);
+        $.ajax({
+            url: url,
+            success: function (check_ret) {
+                var result = true;
+                var info = '';
+                if (check_ret.hasOwnProperty('witen')) {
+                    result = result && check_ret['witen']['result'];
+                    if (check_ret['witen']['result'] == false) {
+                        info += "工程" + "{{ project.witen_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['witen']['info'] + "\n";
+                    }
+                }
+                if (check_ret.hasOwnProperty('btrunc')) {
+                    result = result && check_ret['btrunc']['result'];
+                    if (check_ret['btrunc']['result'] == false) {
+                        info += "工程" + "{{ project.btrunc_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['btrunc']['info'] + "\n";
+                    }
+                }
+                if (check_ret.hasOwnProperty('tgpp')) {
+                    result = result && check_ret['tgpp']['result'];
+                    if (check_ret['tgpp']['result'] == false) {
+                        info += "工程" + "{{ project.tgpp_smoke_proj_name }}" + "执行异常, 原因: " + check_ret['tgpp']['info'];
+                    }
+                }
+
+                if (result == false) {
+                    $("#info").html(info);
+                    $('#error').modal();
+                }
+                start_smoke(para);
+            }
+        });
+    }
+
+    function start_smoke(para) {
+        if ($("#witen").prop('checked')) {
+            start_witen();
+        }
+        if ($("#btrunc").prop('checked')) {
+            start_btrunc();
+        }
+        if ($("#3gpp").prop('checked')) {
+            start_tgpp();
+        }
+
+        setTimeout(query, 5000);
+
+    }
+
+    function query() {
+        var id = ''
+        if (witen_id != undefined) {
+            id += witen_id;
+        }
+        id += '&';
+        if (btrunc_id != undefined) {
+            id += btrunc_id;
+        }
+        id += '&';
+        if (tgpp_id != undefined) {
+            id += tgpp_id;
+        }
+        var timer = setInterval(function() {
+            var url = "{% url 'query_smoke' project.id 0%}";
+            url = url.replace('0', id);
+            $.ajax({
+                url: url,
+                success: function (ret) {
+                    console.log(ret);
+                    if (ret['result']) {
+                        clearInterval(timer);
+                        update(sync_id,build_id,witen_id,btrunc_id,tgpp_id);
+                    }
+                }
+            });
+        }, 15000);
+    }
+
+    function start_witen() {
+        var url = "{% url 'start_witen' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (start_ret) {
+                if (start_ret["result"]) {
+                    $("#witen_status").attr("hidden", false);
+                    $("#witen_result").attr("disabled", false);
+                    witen_id = start_ret["build_id"]
+                    $("#witen_id").html(start_ret["no"]);
+                    wait_witen(witen_id);
+                }
+                else {
+                    $("#witen_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.witen_smoke_proj_name }}" + "执行失败, 原因: " + start_ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function wait_witen(build_id) {
+        var url = "{% url 'wait_witen_end' project.id 0%}";
+        url = url.replace('0', build_id);
+        $.ajax({
+            url: url,
+            success: function (ret) {
+                $("#witen_status").attr("hidden", true);
+                if (ret["result"]) {
+                    $("#witen_result").attr("class", "btn btn-success");
+                }
+                else {
+                    $("#witen_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.witen_smoke_proj_name }}" + "执行失败, 原因: " + ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function start_btrunc() {
+        var url = "{% url 'start_btrunc' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (start_ret) {
+                if (start_ret["result"]) {
+                    $("#btrunc_status").attr("hidden", false);
+                    $("#btrunc_result").attr("disabled", false);
+                    btrunc_id = start_ret["build_id"]
+                    $("#btrunc_id").html(start_ret["no"]);
+                    wait_btrunc(btrunc_id);
+                }
+                else {
+                    $("#btrunc_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.btrunc_smoke_proj_name }}" + "执行失败, 原因: " + start_ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function wait_btrunc(build_id) {
+        var url = "{% url 'wait_btrunc_end' project.id 0%}";
+        url = url.replace('0', build_id);
+        $.ajax({
+            url: url,
+            success: function (ret) {
+                $("#btrunc_status").attr("hidden", true);
+                if (ret["result"]) {
+                    $("#btrunc_result").attr("class", "btn btn-success");
+                }
+                else {
+                    $("#btrunc_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.btrunc_smoke_proj_name }}" + "执行失败, 原因: " + ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function start_tgpp() {
+        var url = "{% url 'start_tgpp' project.id %}";
+        $.ajax({
+            url: url,
+            success: function (start_ret) {
+                if (start_ret["result"]) {
+                    $("#3gpp_status").attr("hidden", false);
+                    $("#3gpp_result").attr("disabled", false);
+                    tgpp_id = start_ret["build_id"]
+                    $("#3gpp_id").html(start_ret["no"]);
+                    wait_tgpp(tgpp_id);
+                }
+                else {
+                    $("#3gpp_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.tgpp_smoke_proj_name }}" + "执行失败, 原因: " + start_ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function wait_tgpp(build_id) {
+        var url = "{% url 'wait_tgpp_end' project.id 0%}";
+        url = url.replace('0', build_id);
+        $.ajax({
+            url: url,
+            success: function (ret) {
+                $("#3gpp_status").attr("hidden", true);
+                if (ret["result"]) {
+                    $("#3gpp_result").attr("class", "btn btn-success");
+                }
+                else {
+                    $("#3gpp_result").attr("class", "btn btn-danger");
+                    $("#info").html("工程" + "{{ project.tgpp_smoke_proj_name }}" + "执行失败, 原因: " + ret["info"]);
+                    $('#error').modal();
+                }
+            }
+        });
+    }
+
+    function update(sync_id='', build_id='',witen_id='',btrunc_id='',tgpp_id='') {
+        var para = sync_id+'&'+build_id+'&'+witen_id+'&'+btrunc_id+'&'+tgpp_id;
+
+        var url = "{% url 'update' project.id 0 %}";
+        url = url.replace('0', para);
+        $.post({
+            url: url,
+            success: function (ret) {
+                $("#record_table").html(ret);
+                reset();
+            }
+        });
+    }
+
+    function mail() {
+        var url = "{% url 'mail' project.id %}";
+        $.ajax({
+            url: url,
+        });
+    }
+
+    function set_option() {
+        var witen_ip = "{{ project.witen_smoke_serv_ip }}";
+        var witen_name = "{{ project.witen_smoke_proj_name }}";
+        if (witen_ip == 'None' || witen_ip == '' ||  witen_name == 'None' || witen_name == '') {
+            $("#witen").attr("disabled", true);
+        }
+        var btrunc_ip = "{{ project.btrunc_smoke_serv_ip }}";
+        var btrunc_name = "{{ project.btrunc_smoke_proj_name }}";
+        if (btrunc_ip == 'None' || btrunc_ip == '' ||  btrunc_name == 'None' || btrunc_name == '') {
+            $("#btrunc").attr("disabled", true);
+        }
+        var tgpp_ip = "{{ project.tgpp_smoke_serv_ip }}";
+        var tgpp_name = "{{ project.tgpp_smoke_proj_name }}";
+        if (tgpp_ip == 'None' || tgpp_ip == '' ||  tgpp_name == 'None' || tgpp_name == '') {
+            $("#3gpp").attr("disabled", true);
+        }
+    }
+
+
+    $(document).ready(function () {
+        $.ajaxSetup({
+            data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+        });
+        set_option();
+    });
+</script>
+{%endblock exscript%}
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="display: flex;flex-direction:column;">
+    <div class="container" style="margin: auto;">
+        <h1>{{ project.name }}<button type="button" class="btn btn-sm btn-outline-success" data-toggle="collapse"
+                data-target="#project_detail" aria-expanded="false" aria-controls="project_detail">详细</button></h1>
+        <div class="collapse" id="project_detail">
+            <div class="card card-body">
+                <div class="row">
+                    <p class="col-md-2">SVN路径：</p>
+                    <p class="col-md-10">{{ project.svn | urlize }}</p>
+                </div>
+            </div>
+        </div>
+        <div><br></div>
+        <div class="row">
+            <div class="col-md-1">
+                <span class="badge badge-info">选项</span>
+            </div>
+            <div class="col-md-7">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="build" onchange="build_select($(this).prop('checked'))">
+                    <label class="form-check-label" for="build">BUILD</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="witen" onchange="option_select($(this).prop('checked'), '#witen_result')">
+                    <label class="form-check-label" for="witen">WITEN</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="btrunc" onchange="option_select($(this).prop('checked'), '#btrunc_result')">
+                    <label class="form-check-label" for="btrunc">BTRUNC</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="3gpp" onchange="option_select($(this).prop('checked'), '#3gpp_result')">
+                    <label class="form-check-label" for="3gpp">3GPP</label>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-danger" type="button" id="start" onclick="start()">开始</button>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-danger" type="button" id="stop" onclick="stop()" disabled>停止</button>
+{#                <button class="btn btn-outline-danger" type="button" onclick="mail()">邮件</button>#}
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light" id="sync_result"
+                    onclick="go_to_uci($('#sync_id').html(), '{{ project.sync_serv_ip }}', '{{ project.sync_proj_name }}')"
+                    disabled>代码同步
+                    <span class="badge badge-light" id="sync_id"></span>
+                </button>
+                <div class="spinner-border spinner-border-sm" role="status" id="sync_status" hidden></div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light" id="build_result"
+                    onclick="go_to_uci($('#build_id').html(), '{{ project.build_serv_ip }}', '{{ project.build_proj_name }}')"
+                    disabled>构建版本
+                    <span class="badge badge-light" id="build_id"></span>
+                </button>
+                <div class="spinner-border spinner-border-sm" role="status" id="build_status" hidden>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light" id="witen_result"
+                    onclick="go_to_uci($('#witen_id').html(), '{{ project.witen_smoke_serv_ip }}', '{{ project.witen_smoke_proj_name }}')"
+                    disabled>WITEN冒烟
+                    <span class="badge badge-light" id="witen_id"></span>
+                </button>
+                <div class="spinner-border spinner-border-sm" role="status" id="witen_status" hidden>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light" id="btrunc_result"
+                    onclick="go_to_uci($('#btrunc_id').html(), '{{ project.btrunc_smoke_serv_ip }}', '{{ project.btrunc_smoke_proj_name }}')"
+                    disabled>BTRUNC冒烟
+                    <span class="badge badge-light" id="btrunc_id"></span>
+                </button>
+                <div class="spinner-border spinner-border-sm" role="status" id="btrunc_status" hidden>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-light" id="3gpp_result"
+                    onclick="go_to_uci($('#3gpp_id').html(), '{{ project.tgpp_smoke_serv_ip }}', '{{ project.tgpp_smoke_proj_name }}')"
+                    disabled>3GPP冒烟
+                    <span class="badge badge-light" id="3gpp_id"></span>
+                </button>
+                <div class="spinner-border spinner-border-sm" role="status" id="3gpp_status" hidden>
+                </div>
+            </div>
+        </div>
+        <div><br></div>
+        <div id="record_table">
+            {% include "ci_projects/record.html" %}
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="error" tabindex="-1" role="dialog" aria-labelledby="errorTitle" aria-hidden="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorTitle">错误</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body"><p id="info" class="text-break"></p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

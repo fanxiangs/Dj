@@ -1,0 +1,55 @@
+<!-- extends表明此页面继承自 base.html 文件 -->
+{% extends "base.html" %}
+{% load staticfiles %}
+
+<!-- 写入 base.html 中定义的 title -->
+{% block title %}登录{% endblock title %}
+
+
+<!-- 写入 base.html 中定义的 content -->
+{% block content %}
+
+<!-- 定义放置文章标题的div容器 -->
+<div class="container" id="main" style="display: flex;flex-direction:column;">
+    <div class="container" style="margin: auto;width: 40%;">
+        {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 100%">{{ error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-user"></i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Username" name="name">
+                </div>
+                <small class="form-text text-muted">例如: awx123456, 默认小写</small>
+            </div>
+            <div class="mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-lock"></i></span>
+                    </div>
+                    <input type="password" class="form-control" placeholder="Password" name="pass">
+                </div>
+                <small class="form-text text-muted">默认密码:Td@com123</small>
+            </div>
+            <div class="mb-3">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1"><i class="far fa-envelope"></i></span>
+                    </div>
+                    <input type="email" class="form-control" placeholder="Email" name="email">
+                </div>
+                <small class="form-text text-muted">华为W3邮箱</small>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%">注册</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}
