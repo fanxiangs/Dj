@@ -28,7 +28,7 @@ packaging==19.1
 paramiko==2.6.0
 pluggy==0.12.0
 protobuf==3.11.1
-py==1.8.0
+py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.19
 PyMySQL==0.9.3
