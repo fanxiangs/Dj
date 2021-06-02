@@ -42,7 +42,7 @@ requests==2.22.0
 selenium==3.141.0
 six==1.12.0
 sqlparse==0.3.0
-urllib3==1.25.3
+urllib3==1.26.5
 wcwidth==0.1.7
 wincertstore==0.2
 WMI==1.4.9
