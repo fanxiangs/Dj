@@ -23,7 +23,7 @@ importlib-metadata==0.19
 jdcal==1.4.1
 Katari==0.0.6
 more-itertools==7.2.0
-openpyxl==2.3.4
+openpyxl==2.4.2
 packaging==19.1
 paramiko==2.6.0
 pluggy==0.12.0
