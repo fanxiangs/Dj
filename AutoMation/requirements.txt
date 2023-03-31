@@ -37,7 +37,7 @@ PyParse==1.1.7
 pyparsing==2.4.2
 pytest==5.1.0
 pytz==2019.2
-redis==3.3.8
+redis==4.4.4
 requests==2.22.0
 selenium==3.141.0
 six==1.12.0
